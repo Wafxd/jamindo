@@ -12,6 +12,18 @@
             --accent-green: #10b981;
             --text-main: #1e293b;
             --text-sub: #64748b;
+            --item-bg: #f1f5f9;
+            --special-bg: #ecfdf5;
+        }
+
+        /* Variabel Dark Mode */
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --item-bg: #334155;
+            --special-bg: #064e3b;
         }
 
         body {
@@ -23,6 +35,24 @@
             flex-direction: column;
             align-items: center;
             color: var(--text-main);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Tombol Dark Mode */
+        .theme-toggle {
+            align-self: flex-end;
+            margin-bottom: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--text-sub);
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .main-card {
@@ -30,10 +60,11 @@
             width: 100%;
             max-width: 350px;
             border-radius: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             padding: 25px;
             text-align: center;
             border-top: 6px solid var(--accent-red);
+            transition: background-color 0.3s ease;
         }
 
         .status-badge {
@@ -44,14 +75,12 @@
             font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         #clock {
             font-size: 3.5rem;
             font-weight: 800;
             margin: 10px 0;
-            color: var(--text-main);
             font-variant-numeric: tabular-nums;
         }
 
@@ -61,7 +90,6 @@
             margin-bottom: 25px;
         }
 
-        /* Jadwal Sholat List */
         .prayer-list {
             display: flex;
             flex-direction: column;
@@ -73,46 +101,36 @@
             justify-content: space-between;
             align-items: center;
             padding: 14px 18px;
-            background: #f1f5f9;
+            background: var(--item-bg);
             border-radius: 16px;
-            transition: 0.3s;
         }
 
-        /* Highlight untuk Imsak dan Maghrib */
         .prayer-item.special {
-            background: #ecfdf5;
+            background: var(--special-bg);
             border-left: 4px solid var(--accent-green);
         }
 
-        .p-name {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .p-time {
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--text-main);
-        }
-
-        .special .p-name { color: #065f46; }
-        .special .p-time { color: var(--accent-green); }
+        .p-name { font-weight: 600; }
+        .p-time { font-weight: 700; font-family: monospace; font-size: 1.1rem; }
 
         footer {
             margin-top: 30px;
             text-align: center;
             font-size: 0.75rem;
             color: var(--text-sub);
-            line-height: 1.5;
+            max-width: 300px;
         }
     </style>
 </head>
 <body>
 
+<button class="theme-toggle" id="theme-btn">
+    <span id="theme-icon">🌙</span> <span id="theme-text">Mode Malam</span>
+</button>
+
 <div class="main-card">
     <span class="status-badge">Waktu Indonesia Bangkalan</span>
-    <div id="clock">00:00</div>
+    <div id="clock">00:00:00</div>
     <div class="date-text" id="date">Memuat...</div>
 
     <div class="prayer-list">
@@ -133,7 +151,7 @@
             <span class="p-time" id="asr">--:--</span>
         </div>
         <div class="prayer-item special">
-            <span class="p-name">🍱 Maghrib</span>
+            <span class="p-name">🍱 Maghrib (Buka)</span>
             <span class="p-time" id="maghrib">--:--</span>
         </div>
         <div class="prayer-item">
@@ -144,38 +162,47 @@
 </div>
 
 <footer>
-    Dibuat untuk kawan yang sedang berlayar ⚓<br>
+    Dibuat khusus untuk Adit ⚓<br>
 </footer>
 
 <script>
+    // Logika Dark Mode
+    const themeBtn = document.getElementById('theme-btn');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = document.getElementById('theme-text');
+    let currentTheme = localStorage.getItem('theme') || 'light';
+
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        themeText.textContent = theme === 'dark' ? 'Mode Terang' : 'Mode Malam';
+    }
+
+    themeBtn.addEventListener('click', () => {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setTheme(currentTheme);
+    });
+
+    // Inisialisasi Tema
+    setTheme(currentTheme);
+
+    // Update Jam & Tanggal
     function updateClock() {
         const now = new Date();
-        const options = { 
-            timeZone: 'Asia/Jakarta', 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: false 
-        };
-        const timeString = new Intl.DateTimeFormat('en-GB', options).format(now);
-        document.getElementById('clock').textContent = timeString;
+        const timeOptions = { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        document.getElementById('clock').textContent = new Intl.DateTimeFormat('en-GB', timeOptions).format(now);
 
-        const dateOptions = { 
-            timeZone: 'Asia/Jakarta', 
-            weekday: 'long', 
-            day: 'numeric', 
-            month: 'long' 
-        };
+        const dateOptions = { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long' };
         document.getElementById('date').textContent = new Intl.DateTimeFormat('id-ID', dateOptions).format(now);
     }
 
+    // Ambil Jadwal API
     async function getPrayerTimes() {
         try {
-            // Default Jakarta, sesuaikan jika perlu
             const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Bangkalan&country=Indonesia&method=11');
             const data = await res.json();
             const t = data.data.timings;
-
             document.getElementById('imsak').innerText = t.Imsak;
             document.getElementById('fajr').innerText = t.Fajr;
             document.getElementById('dhuhr').innerText = t.Dhuhr;
@@ -183,7 +210,7 @@
             document.getElementById('maghrib').innerText = t.Maghrib;
             document.getElementById('isha').innerText = t.Isha;
         } catch (e) {
-            console.error("Gagal load jadwal.");
+            console.log("Gagal memuat jadwal.");
         }
     }
 
