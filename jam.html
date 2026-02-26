@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waktu Indo & Ramadhan</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 350px;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            padding: 25px;
+            text-align: center;
+            border-top: 6px solid var(--accent-red);
+        }
+
+        .status-badge {
+            background: #fee2e2;
+            color: var(--accent-red);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #clock {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            color: var(--text-main);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .date-text {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        /* Jadwal Sholat List */
+        .prayer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prayer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+
+        /* Highlight untuk Imsak dan Maghrib */
+        .prayer-item.special {
+            background: #ecfdf5;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .p-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .p-time {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .special .p-name { color: #065f46; }
+        .special .p-time { color: var(--accent-green); }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <span class="status-badge">Waktu Indonesia Bangkalan</span>
+    <div id="clock">00:00</div>
+    <div class="date-text" id="date">Memuat...</div>
+
+    <div class="prayer-list">
+        <div class="prayer-item special">
+            <span class="p-name">🌙 Imsak</span>
+            <span class="p-time" id="imsak">--:--</span>
+        </div>
+        <div class="prayer-item">
+            <span class="p-name">Subuh</span>
+            <span class="p-time" id="fajr">--:--</span>
+        </div>
+        <div class="prayer-item">
+            <span class="p-name">Dzuhur</span>
+            <span class="p-time" id="dhuhr">--:--</span>
+        </div>
+        <div class="prayer-item">
+            <span class="p-name">Ashar</span>
+            <span class="p-time" id="asr">--:--</span>
+        </div>
+        <div class="prayer-item special">
+            <span class="p-name">🍱 Maghrib</span>
+            <span class="p-time" id="maghrib">--:--</span>
+        </div>
+        <div class="prayer-item">
+            <span class="p-name">Isya</span>
+            <span class="p-time" id="isha">--:--</span>
+        </div>
+    </div>
+</div>
+
+<footer>
+    Dibuat untuk kawan yang sedang berlayar ⚓<br>
+</footer>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const options = { 
+            timeZone: 'Asia/Jakarta', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: false 
+        };
+        const timeString = new Intl.DateTimeFormat('en-GB', options).format(now);
+        document.getElementById('clock').textContent = timeString;
+
+        const dateOptions = { 
+            timeZone: 'Asia/Jakarta', 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long' 
+        };
+        document.getElementById('date').textContent = new Intl.DateTimeFormat('id-ID', dateOptions).format(now);
+    }
+
+    async function getPrayerTimes() {
+        try {
+            // Default Jakarta, sesuaikan jika perlu
+            const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Bangkalan&country=Indonesia&method=11');
+            const data = await res.json();
+            const t = data.data.timings;
+
+            document.getElementById('imsak').innerText = t.Imsak;
+            document.getElementById('fajr').innerText = t.Fajr;
+            document.getElementById('dhuhr').innerText = t.Dhuhr;
+            document.getElementById('asr').innerText = t.Asr;
+            document.getElementById('maghrib').innerText = t.Maghrib;
+            document.getElementById('isha').innerText = t.Isha;
+        } catch (e) {
+            console.error("Gagal load jadwal.");
+        }
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+    getPrayerTimes();
+</script>
+
+</body>
+</html>
