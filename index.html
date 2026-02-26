@@ -3,230 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waktu Indo & Ramadhan</title>
+    <title>WAFXD - Market & Time Tracker</title>
     <style>
         :root {
-            /* Default ke Dark Mode Colors */
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --accent-red: #ef4444;
             --accent-green: #10b981;
+            --accent-blue: #3b82f6;
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
             --item-bg: #334155;
-            --special-bg: #064e3b;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --item-bg: #f1f5f9;
-            --special-bg: #ecfdf5;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text-main);
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle {
-            align-self: flex-end;
-            margin-bottom: 15px;
-            background: var(--card-bg);
-            border: 1px solid var(--text-sub);
-            padding: 8px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: var(--text-main);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .main-card {
             background: var(--card-bg);
             width: 100%;
             max-width: 360px;
-            border-radius: 28px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            padding: 30px 20px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            padding: 20px;
             text-align: center;
-            border-top: 6px solid var(--accent-red);
+            border-top: 5px solid var(--accent-blue);
         }
 
-        .status-badge {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--accent-red);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
+        /* Clock Section */
+        #clock { font-size: 3rem; font-weight: 800; margin: 10px 0; color: var(--text-main); }
+        .date-text { color: var(--text-sub); font-size: 0.85rem; margin-bottom: 20px; }
 
-        #clock {
-            font-size: 3.8rem;
-            font-weight: 800;
-            margin: 15px 0 5px 0;
-            letter-spacing: -1px;
+        /* Market Section */
+        .market-status {
+            background: var(--item-bg);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-blue);
         }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .open { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .closed { background-color: var(--accent-red); }
+        
+        #market-label { font-weight: 700; font-size: 1rem; margin-bottom: 5px; display: block; }
+        .market-time { font-size: 0.8rem; color: var(--text-sub); }
 
-        .date-text {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            margin-bottom: 30px;
+        /* Prayer Section (Compact) */
+        .prayer-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        .prayer-list {
+        .prayer-mini {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-
-        .prayer-item {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
-            background: var(--item-bg);
-            border-radius: 18px;
         }
+        .mini-label { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; font-weight: 700; }
+        .mini-time { font-size: 1rem; font-weight: 700; color: var(--accent-green); }
 
-        .prayer-item.special {
-            background: var(--special-bg);
-            border: 1px solid var(--accent-green);
-        }
-
-        .p-name { font-weight: 600; font-size: 1rem; }
-        .p-time { font-weight: 700; font-family: 'Courier New', monospace; font-size: 1.2rem; }
-
-        /* Running Text Style */
-        .marquee-container {
-            margin-top: 25px;
-            width: 100%;
-            max-width: 360px;
-            overflow: hidden;
-            background: var(--item-bg);
-            padding: 8px 0;
-            border-radius: 10px;
-            color: var(--accent-green);
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            opacity: 0.8;
-        }
+        .footer-note { margin-top: 20px; font-size: 0.7rem; color: var(--text-sub); text-align: center; }
     </style>
 </head>
-<body data-theme="dark">
-
-<button class="theme-toggle" id="theme-btn">
-    <span id="theme-icon">☀️</span> <span id="theme-text">Mode Terang</span>
-</button>
+<body>
 
 <div class="main-card">
-    <span class="status-badge">WIB • Waktu Indonesia Bangkalan</span>
     <div id="clock">00:00:00</div>
-    <div id="date" class="date-text">Memuat tanggal...</div>
+    <div id="date" class="date-text">Memuat...</div>
 
-    <div class="prayer-list">
-        <div class="prayer-item special">
-            <span class="p-name">🌙 Imsak</span>
-            <span class="p-time" id="imsak">--:--</span>
-        </div>
-        <div class="prayer-item">
-            <span class="p-name">Subuh</span>
-            <span class="p-time" id="fajr">--:--</span>
-        </div>
-        <div class="prayer-item">
-            <span class="p-name">Dzuhur</span>
-            <span class="p-time" id="dhuhr">--:--</span>
-        </div>
-        <div class="prayer-item">
-            <span class="p-name">Ashar</span>
-            <span class="p-time" id="asr">--:--</span>
-        </div>
-        <div class="prayer-item special">
-            <span class="p-name">🍱 Maghrib</span>
-            <span class="p-time" id="maghrib">--:--</span>
-        </div>
-        <div class="prayer-item">
-            <span class="p-name">Isya</span>
-            <span class="p-time" id="isha">--:--</span>
-        </div>
+    <div class="market-status">
+        <span id="market-indicator" class="status-dot closed"></span>
+        <span id="market-label">Market Sedang Tutup</span>
+        <div class="market-time">IDX • Asia/Jakarta</div>
     </div>
 
-    <div class="marquee-container">
-        <marquee scrollamount="5">
-            Semangat berlayar kawan! Jaga kesehatan & ibadah. Ramadhan Kareem ⚓🚢
-        </marquee>
+    <div class="prayer-compact">
+        <div class="prayer-mini">
+            <span class="mini-label">🌙 Imsak</span>
+            <span class="mini-time" id="imsak">--:--</span>
+        </div>
+        <div class="prayer-mini">
+            <span class="mini-label">🍱 Buka</span>
+            <span class="mini-time" id="maghrib">--:--</span>
+        </div>
     </div>
 </div>
 
-<footer>
-    Waktu Asia/Bangkalan (WIB) • 2026
-</footer>
+<div class="footer-note">
+    Dibuat untuk memantau market & ibadah di laut ⚓<br>
+    Waktu real-time mengacu pada WIB.
+</div>
 
 <script>
-    const themeBtn = document.getElementById('theme-btn');
-    const themeIcon = document.getElementById('theme-icon');
-    const themeText = document.getElementById('theme-text');
-    
-    // Default ke dark jika belum ada pilihan di storage
-    let currentTheme = localStorage.getItem('theme') || 'dark';
-
-    function setTheme(theme) {
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
-        themeText.textContent = theme === 'dark' ? 'Mode Terang' : 'Mode Malam';
-    }
-
-    themeBtn.addEventListener('click', () => {
-        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-        setTheme(currentTheme);
-    });
-
-    setTheme(currentTheme);
-
     function updateClock() {
         const now = new Date();
-        const timeOpts = { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        document.getElementById('clock').textContent = new Intl.DateTimeFormat('en-GB', timeOpts).format(now);
+        const timeOptions = { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const jktTime = new Intl.DateTimeFormat('en-GB', timeOptions).format(now);
+        document.getElementById('clock').textContent = jktTime;
 
-        const dateOpts = { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long' };
-        document.getElementById('date').textContent = new Intl.DateTimeFormat('id-ID', dateOpts).format(now);
+        const dateOptions = { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('date').textContent = new Intl.DateTimeFormat('id-ID', dateOptions).format(now);
+
+        checkMarketStatus(now);
+    }
+
+    function checkMarketStatus(now) {
+        // Konversi waktu sekarang ke waktu Jakarta
+        const jktString = now.toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
+        const jktNow = new Date(jktString);
+        
+        const day = jktNow.getDay(); // 0: Minggu, 5: Jumat, 6: Sabtu
+        const hours = jktNow.getHours();
+        const minutes = jktNow.getMinutes();
+        const totalMinutes = (hours * 60) + minutes;
+
+        const label = document.getElementById('market-label');
+        const dot = document.getElementById('market-indicator');
+
+        // Reset status
+        label.textContent = "Market Tutup (Weekend)";
+        dot.className = "status-dot closed";
+
+        if (day >= 1 && day <= 5) { // Senin - Jumat
+            let breakStart = (day === 5) ? 690 : 720; // Jumat 11:30, hari lain 12:00
+            let breakEnd = 810; // 13:30
+
+            if (totalMinutes >= 530 && totalMinutes < 540) {
+                label.textContent = "IDX: Pre-Opening";
+                dot.className = "status-dot open";
+            } else if (totalMinutes >= 540 && totalMinutes < breakStart) {
+                label.textContent = "IDX: Sesi 1 Berjalan";
+                dot.className = "status-dot open";
+            } else if (totalMinutes >= breakStart && totalMinutes < breakEnd) {
+                label.textContent = "IDX: Istirahat Sesi";
+                dot.className = "status-dot closed";
+            } else if (totalMinutes >= breakEnd && totalMinutes < 960) {
+                label.textContent = "IDX: Sesi 2 Berjalan";
+                dot.className = "status-dot open";
+            } else if (totalMinutes >= 960) {
+                label.textContent = "IDX: Market Closed";
+                dot.className = "status-dot closed";
+            } else {
+                label.textContent = "IDX: Menunggu Open";
+                dot.className = "status-dot closed";
+            }
+        }
     }
 
     async function getPrayerTimes() {
         try {
-            // API Aladhan dengan metode Kemenag RI (method 11)
             const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Bangkalan&country=Indonesia&method=11');
             const data = await res.json();
-            const t = data.data.timings;
-            document.getElementById('imsak').innerText = t.Imsak;
-            document.getElementById('fajr').innerText = t.Fajr;
-            document.getElementById('dhuhr').innerText = t.Dhuhr;
-            document.getElementById('asr').innerText = t.Asr;
-            document.getElementById('maghrib').innerText = t.Maghrib;
-            document.getElementById('isha').innerText = t.Isha;
+            document.getElementById('imsak').innerText = data.data.timings.Imsak;
+            document.getElementById('maghrib').innerText = data.data.timings.Maghrib;
         } catch (e) {
-            console.log("Koneksi API bermasalah.");
+            console.log("API Error");
         }
     }
 
